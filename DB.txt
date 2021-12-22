@@ -1,0 +1,149 @@
+CREATE TABLE DESIGN(
+Living_room VARBINARY (MAX) NOT NULL,
+Bedroom VARBINARY (MAX) NOT NULL,
+Kitchen VARBINARY (MAX) NOT NULL,
+Wardrobe VARBINARY (MAX) NOT NULL,
+Bathroom VARBINARY (MAX) NOT NULL
+)
+select Living_room 'Living Room',Bedroom,Kitchen,Wardrobe,Bathroom from DESIGN
+
+create table HOME_DECOR
+(
+Wall_Accents VARBINARY (MAX) NOT NULL,
+Glassware VARBINARY (MAX) NOT NULL,
+Table_Showpiece VARBINARY (MAX) NOT NULL,
+LampsandLighting VARBINARY (MAX) NOT NULL
+)
+select Wall_Accents 'Wall Accents', Glassware ,Table_Showpiece 'Table Showpiece',LampsandLighting 'Lamps and Lighting' from HOME_DECOR
+create table PROFESSIONALS
+(
+professional_id int identity(1,1) not null,
+Professional_code AS 'DDP' + RIGHT('00'+ CONVERT(VARCHAR(255),professional_id),255) ,
+Namee varchar(255) not null,
+Mobile varchar(10) not null,
+Emailid varchar(30) not null,
+Address varchar(255) not null,
+Pro_At varchar(255) not null
+)
+insert into PROFESSIONALS values
+('Jyothi','9889576534','jyothi@gmail.com','Banglore','Bedroom'),
+('Deepika','7859576534','deepika@gmail.com','Hyderabad','Living'),
+('Sujith','7689576534','sujith@gmail.com','Pune','Wardrobe'),
+('Teja','7389576534','teja@gmail.com','Vijayawada','Bathroom'),
+('Lahari','7459576534','lahari@gmail.com','Kolkata','Kitchen'),
+('Prasanna','9489576534','prasanna@gmail.com','Coimbatore','Living'),
+('Krishna','6589576534','krishna@gmail.com','Mumbai','Wardrobe'),
+('Sunitha','6389576534','sunitha@gmail.com','Chennai','Bedroom')
+select Professional_code'Professional Id', Namee'Name',
+Mobile'Mobile Number',Emailid'E-mail Id', Pro_At 'Pro-At ' from PROFESSIONALS
+create table PROFESSIONAL_REGSISTRATION
+(
+Registered_id int identity(1,1) not null,
+Namee varchar(255) not null,
+Mobile varchar(10) not null,
+Emailid varchar(30) not null,
+Address varchar(255) not null,
+Internship_name varchar(255) not null
+)
+select Registered_id 'Registration Id', Namee'Name ',
+Mobile'Mobile Number',Emailid 'E-mail Id', Internship_name 'Internship/Previous Company Name ' from PROFESSIONAL_REGSISTRATION
+Create table ONLINE_CONSULTATION
+(
+Client_id int identity(1,1),
+Client_code AS 'DD' + RIGHT('00'+ CONVERT(VARCHAR(255),Client_id),255) persisted,
+Namee varchar(255) not null,
+Aadhar_number varchar(12) primary key not null,
+Mobile varchar(10) not null,
+Emailid varchar(30) not null,
+Addresss varchar(255) not null,
+Property_Name varchar(255) not null
+)
+drop table ONLINE_CONSULTATION
+select Namee'Name ',Aadhar_number'Aadhar Number',
+Mobile'Mobile Number',Emailid'E-mail Id',Addresss 'Address', Property_Name 'Property Name ' from ONLINE_CONSULTATION
+insert into ONLINE_CONSULTATION(Namee,Mobile,Emailid,Addresss,Property_Name) values
+('bvn','5483279','jshf@gmail.com','vjw','bulding')
+create table PAYMENT
+(
+Payment_id int identity(1,1),
+payment_code AS 'DDPAY' + RIGHT('00'+ CONVERT(VARCHAR(255),Payment_id),255) persisted ,
+Aadhar_number varchar(12) foreign key references ONLINE_CONSULTATION(Aadhar_number) not null,
+Item_code varchar(20),
+Amount varchar(10) not null,
+Card_Holder varchar(255) not null,
+Card_Number varchar(12) not null,
+Expiry_Datee varchar(10) not null,
+CVV varchar(3) not null,
+)
+drop table PAYMENT
+
+select payment_code 'Payment Id ', Aadhar_number'Aadhar Number',
+Amount ,Card_Holder 'Card Holder',
+Card_Number'Card Number', Expiry_Datee 'Expiry Date ',CVV from PAYMENT
+insert into PAYMENT(Aadhar_number,Amount,Card_Holder,Card_Number,Expiry_Datee,CVV) values
+('873827985',200.00,'ajahsfl','ajksfh','02/03/2002',123)
+drop table PAYMENT
+create table FEEDBACK
+(
+Aadhar_number varchar(12) foreign key references ONLINE_CONSULTATION(Aadhar_number) not null,
+Comment varchar(255) not null,
+Rating varchar(2) not null
+)
+select Aadhar_number,Comment,Rating from FEEDBACK
+
+
+
+
+create procedure online_insert(
+@Namee varchar(255) ,
+@Aadhar_number varchar(12),
+@Mobile varchar(10) ,
+@Emailid varchar(30) ,
+@Address varchar(255) ,
+@Property_Name varchar(255))
+as
+begin
+insert into ONLINE_CONSULTATION values(@Namee,@Aadhar_number,@Mobile,@Emailid,@Address,@Property_Name)
+end
+
+select * from ONLINE_CONSULTATION
+
+
+create procedure professional_insert(
+@Namee varchar(255),
+@Mobile varchar(10) ,
+@Emailid varchar(30),
+@Address varchar(255),
+@Internship_name varchar(255) )
+as
+begin
+declare @co int
+set @co=(select count(*) from PROFESSIONAL_REGSISTRATION where Emailid=@Emailid)
+if @co<1
+begin
+insert into PROFESSIONAL_REGSISTRATION values(@Namee,@Mobile,@Emailid,@Address,@Internship_name)
+end
+end
+
+
+create procedure feedback_insert(
+@Aadhar_number varchar(12),
+@Comment varchar(255) ,
+@Rating varchar(2))
+as
+begin
+insert into FEEDBACK values(@Aadhar_number,@Comment,@Rating)
+end
+
+create procedure payment_insert(
+@Aadhar_number varchar(12),
+@Amount varchar(10) ,
+@Item_code varchar(20),
+@Card_Holder varchar(255) ,
+@Card_Number varchar(12) ,
+@Expiry_Datee varchar(10),
+@CVV varchar(3))
+as
+begin
+insert into PAYMENT values(@Aadhar_number,@Amount,@Item_code,@Card_Holder,@Card_Number,@Expiry_Datee,@CVV)
+end
